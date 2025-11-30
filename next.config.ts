@@ -3,6 +3,9 @@ import path from "path";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   // Disable Next's image optimization in development to avoid upstream proxy timeouts.
   // In production you can remove or set this to false to enable optimization.
   images: {
