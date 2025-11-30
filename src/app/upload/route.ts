@@ -2,27 +2,33 @@
 import { NextResponse } from "next/server";
 import cloudinary from "@/lib/cloudinary";
 
-export const runtime = "nodejs"; // ensure Node runtime
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
-  const file = formData.get("file") as any | null;
+  const file = formData.get("file");
 
-  if (!file) {
-    return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+  if (!(file instanceof File)) {
+    return NextResponse.json({ error: "No valid file uploaded" }, { status: 400 });
   }
 
-  // convert uploaded File to Buffer
   const arrayBuffer = await file.arrayBuffer();
   const buffer = Buffer.from(arrayBuffer);
 
   return new Promise((resolve) => {
     cloudinary.uploader
-      .upload_stream({ folder: "trendwear" }, (error: any, result: any) => {
-        if (error) {
-          resolve(NextResponse.json({ error: error.message || error }, { status: 500 }));
+      .upload_stream({ folder: "trendwear" }, (error, result) => {
+        if (error || !result) {
+          resolve(
+            NextResponse.json(
+              { error: error?.message ?? "Upload failed" },
+              { status: 500 }
+            )
+          );
         } else {
-          resolve(NextResponse.json({ url: result.secure_url }));
+          resolve(
+            NextResponse.json({ url: result.secure_url }, { status: 200 })
+          );
         }
       })
       .end(buffer);

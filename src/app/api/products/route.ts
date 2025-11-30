@@ -4,22 +4,22 @@ import prisma from "@/lib/prisma";
 
 export async function GET() {
   try {
-    const list = await prisma.product.findMany({ 
-      orderBy: { createdAt: "desc" } 
+    const list = await prisma.product.findMany({
+      orderBy: { createdAt: "desc" },
     });
+
     return NextResponse.json(list);
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    // Simple admin protection
     const secret = request.headers.get("x-admin-secret") ?? "";
+
     if (secret !== process.env.ADMIN_SECRET) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     if (!name || !price || !imageUrl || !category) {
       return NextResponse.json(
-        { error: "Missing required fields: name, price, category, imageUrl" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     const product = await prisma.product.create({
       data: {
         name,
-        description: description ?? null,
+        description: description ?? "",
         price: Number(price),
         category,
         imageUrl,
@@ -45,11 +45,10 @@ export async function POST(request: Request) {
       },
     });
 
-    return NextResponse.json(product);
-  } catch (error: any) {
-    return NextResponse.json(
-      { error: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json(product, { status: 201 });
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

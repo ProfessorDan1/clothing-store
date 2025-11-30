@@ -1,52 +1,57 @@
+// src/app/api/admin/upload/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { v2 as cloudinary } from "cloudinary";
 
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME!,
+  api_key: process.env.CLOUDINARY_API_KEY!,
+  api_secret: process.env.CLOUDINARY_API_SECRET!,
 });
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
-    const secret = formData.get("secret");
 
+    const secret = formData.get("secret");
     if (secret !== process.env.ADMIN_SECRET) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const file = formData.get("image") as File;
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    const file = formData.get("image");
+    if (!(file instanceof File)) {
+      return NextResponse.json({ error: "Invalid file" }, { status: 400 });
     }
 
-    // Upload to Cloudinary
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    const uploadResult = await new Promise<any>((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream({ folder: "products" }, (err, result) => {
-        if (err) reject(err);
-        else resolve(result);
-      });
-      stream.end(buffer);
+    const uploadResult = await new Promise<{
+      secure_url: string;
+    }>((resolve, reject) => {
+      cloudinary.uploader.upload_stream(
+        { folder: "products" },
+        (error, result) => {
+          if (error || !result) reject(error);
+          else resolve(result as { secure_url: string });
+        }
+      ).end(buffer);
     });
 
-    // Save product in DB
     const product = await prisma.product.create({
       data: {
-        name: formData.get("name") as string,
-        description: formData.get("description") as string,
-        price: parseFloat(formData.get("price") as string),
-        category: formData.get("category") as string,
+        name: String(formData.get("name") ?? ""),
+        description: String(formData.get("description") ?? ""),
+        price: Number(formData.get("price") ?? 0),
+        category: String(formData.get("category") ?? ""),
         imageUrl: uploadResult.secure_url,
       },
     });
 
-    return NextResponse.json(product);
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(product, { status: 201 });
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Something went wrong";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
