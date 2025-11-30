@@ -1,16 +1,21 @@
-// src/app/shop/[category]/page.tsx
 import prisma from "@/lib/prisma";
 
-export default async function CategoryPage({ params }: { params: { category: string } }) {
+interface PageProps {
+  params: Record<string, string>; // <- Generic mapping for dynamic params
+}
+
+export default async function CategoryPage({ params }: PageProps) {
+  const category = params.category; // still accessible
+
   const products = await prisma.product.findMany({
     where: {
-      category: params.category // e.g., "Hoodies"
+      category: category
     }
   });
 
   return (
     <div>
-      <h1>{params.category}</h1>
+      <h1>{category}</h1>
       {/* Display products */}
     </div>
   );
