@@ -1,111 +1,184 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Partners from "@/components/Partners";
-import { Mail, Phone, ShoppingBag, Star, Users } from "lucide-react";
+import { ArrowRight, ArrowDown } from "lucide-react";
+
+// Placeholder for your Partners component - assuming it exists or using a simple version here
+const Partners = () => (
+  <div className="flex flex-wrap justify-center items-center gap-12 opacity-60 grayscale hover:grayscale-0 transition-all duration-500">
+    {/* Replace these with your actual partner logos/component */}
+    <h3 className="text-2xl font-bold tracking-tighter">NIKE</h3>
+    <h3 className="text-2xl font-bold tracking-tighter">ADIDAS</h3>
+    <h3 className="text-2xl font-bold tracking-tighter">SUPREME</h3>
+    <h3 className="text-2xl font-bold tracking-tighter">OFF-WHITE</h3>
+  </div>
+);
 
 export default function Home() {
-  const products = [
-    { id: "1", name: "Illusion", price: 15000.0, imageUrl: "/sample1.jpg" },
-    { id: "2", name: "Tee Shirt", price: 20000.0, imageUrl: "/sample2.jpg" },
-    { id: "3", name: "Jade's Wrld", price: 39000.0, imageUrl: "/sample3.jpg" },
-    { id: "4", name: "Armless Tees", price: 17500.0, imageUrl: "/sample4.jpg" },
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  // 1. DATA: Hero Images (Replace with your actual tall/wide hero images)
+  const heroSlides = [
+    {
+      id: 1,
+      image: "/hero.jpg", // Replace with real path
+      title: "JFS WORLD",
+      subtitle: "The Future of Streetwear",
+    },
+    {
+      id: 2,
+      image: "/hero-model.png", // Replace with real path
+      title: "NEW SEASON",
+      subtitle: "Collection 01: Awakening",
+    },
+    {
+      id: 3,
+      image: "/sample1.jpg", // Replace with real path
+      title: "LIMITED RUN",
+      subtitle: "Once they're gone, they're gone.",
+    },
   ];
 
+  // 2. DATA: Collections
+  const collections = [
+    { id: 1, name: "Men Collection", image: "/sample1.jpg", link: "/shop/hoodies" },
+    { id: 2, name: "Women Collection", image: "/sample2.jpg", link: "/shop/outerwear" },
+    { id: 3, name: "Accessories", image: "/sample3.jpg", link: "/shop/accessories" },
+  ];
+
+  // 3. LOGIC: Auto-slide
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev === heroSlides.length - 1 ? 0 : prev + 1));
+    }, 5000); // Change every 5 seconds
+    return () => clearInterval(timer);
+  }, [heroSlides.length]);
+
   return (
-    <div className="mx-auto max-w-7xl px-6 space-y-24">
-      {/* Hero Section */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-20">
-        <div className="space-y-6 z-10">
-          <h1 className="text-4xl md:text-6xl font-extrabold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-300 via-pink-400 to-yellow-300">
-            Welcome to <span className="text-pink-500">JFS World</span> — Your Style. Your Future.
-          </h1>
-          <p className="text-slate-300 max-w-xl">
-            Step into the future of fashion. JFS World brings you premium streetwear designed with personality, boldness, and purpose.
-          </p>
-
-          <div className="flex gap-4">
-            <Link
-              href="/shop"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-black font-semibold shadow-lg hover:scale-[1.03] transition"
-            >
-              <ShoppingBag size={18} /> Shop Now
-            </Link>
-            <Link
-              href="/contact"
-              className="inline-block px-5 py-3 rounded-full border border-white/10 text-slate-200 hover:bg-white/5 transition"
-            >
-              Contact Us
-            </Link>
-          </div>
-
-          <div className="mt-8">
-            <Partners />
-          </div>
-        </div>
-
-        <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-          <img src="/hero-model.png" alt="Hero" className="w-full h-[420px] object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-        </div>
-      </section>
-
-      {/* About / Values Section */}
-      <section className="text-center space-y-6">
-        <h2 className="text-3xl font-bold">Why Choose JFS?</h2>
-        <p className="text-slate-400 max-w-2xl mx-auto">
-          Every piece we design is crafted with sustainability and expression in mind — because style should make a statement that lasts.
-        </p>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
-          <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
-            <Star className="w-10 h-10 text-pink-400 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Premium Quality</h3>
-            <p className="text-slate-400">Made from the best materials for lasting comfort and bold looks.</p>
-          </div>
-          <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
-            <Users className="w-10 h-10 text-purple-400 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">Community Driven</h3>
-            <p className="text-slate-400">We grow with our tribe of creators, dreamers, and fashion lovers.</p>
-          </div>
-          <div className="p-6 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition">
-            <Mail className="w-10 h-10 text-yellow-400 mx-auto mb-4" />
-            <h3 className="font-semibold text-lg mb-2">24/7 Support</h3>
-            <p className="text-slate-400">Always here to help — just drop us a message or call.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section>
-        <h2 className="text-3xl font-bold mb-8 text-center">Featured Picks</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {products.map((p) => (
-            <div key={p.id} className="bg-white/5 rounded-xl overflow-hidden border border-white/10 hover:scale-[1.02] transition">
-              <img src={p.imageUrl} alt={p.name} className="w-full h-60 object-cover" />
-              <div className="p-4">
-                <h4 className="font-semibold">{p.name}</h4>
-                <p className="text-slate-400">₦{p.price.toLocaleString()}</p>
-              </div>
+    <div className="bg-black text-white font-sans selection:bg-white selection:text-black">
+      
+      {/* --- SECTION 1: HERO SLIDESHOW --- */}
+      <section className="relative h-screen w-full overflow-hidden">
+        {heroSlides.map((slide, index) => (
+          <div
+            key={slide.id}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            {/* Background Image with Dark Overlay */}
+            <div className="absolute inset-0 bg-black/40 z-10" />
+            <img
+              src={slide.image}
+              alt={slide.title}
+              className="h-full w-full object-cover scale-105 animate-slow-zoom" 
+            />
+            
+            {/* Text Overlay */}
+            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
+              <p className="text-sm md:text-lg uppercase tracking-[0.4em] mb-4 text-zinc-300 animate-fade-in-up">
+                {slide.subtitle}
+              </p>
+              <h1 className="text-6xl md:text-9xl font-black uppercase tracking-tighter mb-8 leading-none animate-fade-in-up delay-100">
+                {slide.title}
+              </h1>
+              
+              <Link
+                href="/shop"
+                className="group flex items-center gap-3 bg-white text-black px-8 py-4 font-bold uppercase tracking-wider hover:bg-zinc-200 transition-colors animate-fade-in-up delay-200"
+              >
+                Shop Now
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </div>
+          </div>
+        ))}
+
+        {/* Slide Indicators (Dots) */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex gap-3">
+          {heroSlides.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentSlide(idx)}
+              className={`h-1 transition-all duration-300 ${
+                idx === currentSlide ? "w-8 bg-white" : "w-4 bg-white/30"
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Scroll Hint */}
+        <div className="absolute bottom-8 right-8 z-30 animate-bounce hidden md:block">
+            <ArrowDown className="w-6 h-6 text-white/70" />
+        </div>
+      </section>
+
+      {/* --- SECTION 2: COLLECTIONS (Scroll Format) --- */}
+      <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex items-end justify-between mb-12">
+            <h2 className="text-4xl md:text-6xl font-bold uppercase tracking-tighter">
+                Curated <span className="text-zinc-500">Series</span>
+            </h2>
+            <Link href="/shop" className="hidden md:block text-sm uppercase tracking-widest border-b border-white pb-1 hover:text-zinc-400 hover:border-zinc-400 transition-colors">
+                View All Categories
+            </Link>
+        </div>
+
+        {/* Grid Layout that feels like a scrollable gallery */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-auto md:h-[600px]">
+          {collections.map((col, idx) => (
+            <Link 
+                href={col.link} 
+                key={col.id}
+                className="group relative h-[400px] md:h-full overflow-hidden border border-white/10"
+            >
+              <img
+                src={col.image}
+                alt={col.name}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              {/* Overlay on Hover */}
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/50 transition-colors duration-500" />
+              
+              <div className="absolute bottom-0 left-0 w-full p-8 translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                <h3 className="text-3xl font-bold uppercase italic">{col.name}</h3>
+                <div className="h-[2px] w-0 bg-white mt-2 group-hover:w-full transition-all duration-700 ease-in-out" />
+                <p className="mt-2 text-sm text-zinc-300 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                    Explore Collection &rarr;
+                </p>
+              </div>
+            </Link>
           ))}
         </div>
       </section>
-  
 
-      {/* Newsletter Section */}
-      <section className="text-center py-20 bg-gradient-to-r from-purple-700/20 via-pink-700/10 to-yellow-500/10 rounded-2xl">
-        <h2 className="text-3xl font-bold mb-4">Join Our Style Tribe</h2>
-        <p className="text-slate-400 mb-6">Get exclusive drops, deals, and fashion insights delivered weekly.</p>
-        <div className="flex justify-center">
-          <input
-            type="email"
-            placeholder="Your email"
-            className="px-4 py-3 rounded-l-full bg-white/10 text-white border border-white/20 focus:outline-none"
-          />
-          <button className="px-6 py-3 bg-gradient-to-r from-pink-600 to-yellow-500 rounded-r-full text-black font-semibold">
-            Subscribe
-          </button>
+      {/* --- SECTION 3: PARTNERS (Marquee Style) --- */}
+      <section className="py-20 border-t border-white/10 bg-zinc-900">
+        <div className="text-center mb-10">
+            <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Trusted By The Best</p>
+        </div>
+        
+        {/* We use a simple flex container here, or the marquee animation if you added the CSS */}
+        <div className="w-full overflow-hidden">
+             {/* If you want a moving ticker, add 'animate-marquee' class defined below */}
+             <div className="flex justify-center">
+                 <Partners />
+             </div>
         </div>
       </section>
+
+      {/* --- FOOTER SIMPLIFIED --- */}
+      <footer className="py-12 border-t border-white/10 text-center">
+          <h2 className="text-5xl md:text-9xl font-black text-zinc-800 tracking-tighter select-none break-all">JFS WORLD</h2>
+          <div className="flex justify-center gap-6 mt-[-20px] relative z-10">
+              <Link href="#" className="text-zinc-400 hover:text-white uppercase text-sm">Instagram</Link>
+              <Link href="#" className="text-zinc-400 hover:text-white uppercase text-sm">Twitter</Link>
+              <Link href="#" className="text-zinc-400 hover:text-white uppercase text-sm">TikTok</Link>
+          </div>
+          <p className="text-zinc-600 text-xs mt-12">&copy; 2024 JFS World. All Rights Reserved.</p>
+      </footer>
+
     </div>
   );
 }

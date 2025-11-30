@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
         name: formData.get("name") as string,
         description: formData.get("description") as string,
         price: parseFloat(formData.get("price") as string),
+        category: formData.get("category") as string,
         imageUrl: uploadResult.secure_url,
       },
     });

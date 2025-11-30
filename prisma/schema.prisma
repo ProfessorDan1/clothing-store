@@ -12,6 +12,7 @@ model Product {
   name        String
   description String?
   price       Float
+  category    String
   imageUrl    String
   meta        Json?    // e.g. sizes, colors, extra fields
   createdAt   DateTime @default(now())
