@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, ArrowDown } from "lucide-react";
+import ProductCard from "@/components/ProductCard";
 
 // Placeholder for your Partners component - assuming it exists or using a simple version here
 const Partners = () => (
@@ -15,8 +16,19 @@ const Partners = () => (
   </div>
 );
 
+interface Product {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  category: string;
+  imageUrl: string;
+}
+
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // 1. DATA: Hero Images (Replace with your actual tall/wide hero images)
   const heroSlides = [
@@ -42,9 +54,9 @@ export default function Home() {
 
   // 2. DATA: Collections
   const collections = [
-    { id: 1, name: "Men Collection", image: "/sample1.jpg", link: "/shop/hoodies" },
-    { id: 2, name: "Women Collection", image: "/sample2.jpg", link: "/shop/outerwear" },
-    { id: 3, name: "Accessories", image: "/sample3.jpg", link: "/shop/accessories" },
+    { id: 1, name: "Men Collection", image: "/sample1.jpg", link: "/collections/men" },
+    { id: 2, name: "Women Collection", image: "/sample2.jpg", link: "/collections/women" },
+    { id: 3, name: "Accessories", image: "/sample3.jpg", link: "/collections/accessories" },
   ];
 
   // 3. LOGIC: Auto-slide
@@ -54,6 +66,22 @@ export default function Home() {
     }, 5000); // Change every 5 seconds
     return () => clearInterval(timer);
   }, [heroSlides.length]);
+
+  // 4. LOGIC: Fetch products
+  useEffect(() => {
+    async function fetchProducts() {
+      try {
+        const res = await fetch("/api/products");
+        const data = await res.json();
+        setProducts(data.slice(0, 8)); // Get first 8 products
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchProducts();
+  }, []);
 
   return (
     <div className="bg-black text-white font-sans selection:bg-white selection:text-black">
@@ -153,7 +181,44 @@ export default function Home() {
         </div>
       </section>
 
-      {/* --- SECTION 3: PARTNERS (Marquee Style) --- */}
+      {/* --- SECTION 3: QUICK SHOPPING --- */}
+      <section className="py-24 px-6 md:px-12 max-w-[1600px] mx-auto">
+        <div className="flex items-end justify-between mb-12">
+          <h2 className="text-4xl md:text-6xl font-bold uppercase tracking-tighter">
+            LATEST <span className="text-zinc-500">DRIPS</span>
+          </h2>
+          <Link href="/shop" className="hidden md:block text-sm uppercase tracking-widest border-b border-white pb-1 hover:text-zinc-400 hover:border-zinc-400 transition-colors">
+            View All Products
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-20">
+            <p className="text-zinc-500 text-lg">No products available yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                description={product.description}
+                price={product.price}
+                category={product.category}
+                imageUrl={product.imageUrl}
+                compact={true}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* --- SECTION 4: PARTNERS (Marquee Style) --- */}
       <section className="py-20 border-t border-white/10 bg-zinc-900">
         <div className="text-center mb-10">
             <p className="text-xs uppercase tracking-[0.3em] text-zinc-500">Trusted By The Best</p>

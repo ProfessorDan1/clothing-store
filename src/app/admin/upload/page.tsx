@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
 
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
@@ -34,19 +34,28 @@ export default function UploadPage() {
   ];
 
   useEffect(() => {
-    if (!file) {
-      setPreviewUrl(null);
+    if (files.length === 0) {
+      setPreviewUrls([]);
       return;
     }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [file]);
+    const urls = files.map(file => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+    return () => urls.forEach(url => URL.revokeObjectURL(url));
+  }, [files]);
 
-  const uploadAndCreate = () =>
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files);
+      setFiles(prev => [...prev, ...newFiles]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadAndCreate = (file: File) =>
     new Promise<{ ok: boolean; body: any }>((resolve, reject) => {
-      if (!file) return reject(new Error("No file provided"));
-
       const form = new FormData();
       form.append("name", name.trim());
       form.append("price", price.toString());
@@ -85,32 +94,48 @@ export default function UploadPage() {
   const handleSubmit = async () => {
     setError(null);
     setStatus("");
-    if (!file) return setError("Please select an image file.");
+    if (files.length === 0) return setError("Please select at least one image file.");
     if (!name.trim()) return setError("Please provide a product name.");
     if (!category) return setError("Please select a category.");
     if (!price || Number.isNaN(Number(price))) return setError("Please provide a valid price.");
     if (!adminSecret) return setError("Admin secret is required.");
 
     setLoading(true);
-    setUploadProgress(0);
-    setStatus("Uploading image & creating product...");
+    let successCount = 0;
+    let failCount = 0;
 
-    try {
-      const { ok, body } = await uploadAndCreate();
+    for (let i = 0; i < files.length; i++) {
+      try {
+        setStatus(`Uploading image ${i + 1} of ${files.length}...`);
+        setUploadProgress(0);
 
-      if (!ok) {
-        const errMsg = (body && (body.error || body.message)) ?? "Upload/create failed";
-        throw new Error(errMsg);
+        const { ok, body } = await uploadAndCreate(files[i]);
+
+        if (!ok) {
+          const errMsg = (body && (body.error || body.message)) ?? "Upload/create failed";
+          console.error(`Failed to upload ${files[i].name}:`, errMsg);
+          failCount++;
+        } else {
+          successCount++;
+        }
+      } catch (err: any) {
+        console.error(`Error uploading ${files[i].name}:`, err?.message);
+        failCount++;
       }
+    }
 
-      setStatus("Product created! Redirecting to shop...");
-      setTimeout(() => router.push("/shop"), 700);
-    } catch (err: any) {
-      setError(err?.message ?? "An unknown error occurred");
+    setLoading(false);
+    setUploadProgress(null);
+
+    if (failCount === 0) {
+      setStatus(`All ${successCount} products created successfully! Redirecting...`);
+      setTimeout(() => router.push("/shop"), 1500);
+    } else if (successCount > 0) {
+      setStatus(`${successCount} products created, ${failCount} failed.`);
+      setError("Some uploads failed. Check console for details.");
+    } else {
+      setError("All uploads failed. Please check your inputs and try again.");
       setStatus("");
-    } finally {
-      setLoading(false);
-      setUploadProgress(null);
     }
   };
 
@@ -119,7 +144,7 @@ export default function UploadPage() {
     setPrice("");
     setCategory("");
     setDescription("");
-    setFile(null);
+    setFiles([]);
     setStatus("");
     setError(null);
     setUploadProgress(null);
@@ -130,8 +155,8 @@ export default function UploadPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold mb-2">Upload Product</h1>
-          <p className="text-slate-400">Add new products to your catalog</p>
+          <h1 className="text-4xl font-bold mb-2">Upload Products</h1>
+          <p className="text-slate-400">Add multiple products with the same details</p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-8">
@@ -160,6 +185,9 @@ export default function UploadPage() {
                 placeholder="e.g., Oversized Graphic Tee"
                 disabled={loading}
               />
+              <p className="text-xs text-slate-500 mt-1">
+                All images will be uploaded with this name
+              </p>
             </div>
 
             {/* Price and Category */}
@@ -207,14 +235,17 @@ export default function UploadPage() {
               />
             </div>
 
-            {/* Image Upload */}
+            {/* Multiple Image Upload */}
             <div>
-              <label className="block text-sm font-medium mb-2">Product Image</label>
+              <label className="block text-sm font-medium mb-2">
+                Product Images ({files.length} selected)
+              </label>
               <div className="relative">
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                  multiple
+                  onChange={handleFileChange}
                   className="hidden"
                   id="file-upload"
                   disabled={loading}
@@ -227,7 +258,7 @@ export default function UploadPage() {
                 >
                   <Upload size={24} className="text-slate-400" />
                   <span className="text-slate-400">
-                    {file ? file.name : "Click to upload image"}
+                    Click to upload multiple images
                   </span>
                 </label>
               </div>
@@ -256,7 +287,7 @@ export default function UploadPage() {
                 disabled={loading}
                 className="flex-1 px-6 py-3 bg-white text-black font-semibold rounded-lg hover:bg-slate-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Uploading..." : "Upload & Create"}
+                {loading ? "Uploading..." : `Upload ${files.length} Product${files.length !== 1 ? 's' : ''}`}
               </button>
 
               <button
@@ -283,54 +314,44 @@ export default function UploadPage() {
 
           {/* Right Column - Preview */}
           <div className="lg:sticky lg:top-24 h-fit">
-            <label className="block text-sm font-medium mb-4">Preview</label>
-            <div className="rounded-lg bg-white/5 border border-white/10 overflow-hidden">
-              {previewUrl ? (
-                <div className="relative aspect-[3/4]">
-                  <img
-                    src={previewUrl}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    onClick={() => setFile(null)}
-                    className="absolute top-4 right-4 w-8 h-8 bg-black/50 backdrop-blur rounded-full flex items-center justify-center hover:bg-black/70 transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
+            <label className="block text-sm font-medium mb-4">
+              Preview ({files.length} image{files.length !== 1 ? 's' : ''})
+            </label>
+            
+            {previewUrls.length === 0 ? (
+              <div className="rounded-lg bg-white/5 border border-white/10 overflow-hidden aspect-[3/4] flex items-center justify-center">
+                <div className="text-center text-slate-500">
+                  <ImageIcon size={48} className="mx-auto mb-4 opacity-50" />
+                  <p className="text-sm">No images selected</p>
                 </div>
-              ) : (
-                <div className="aspect-[3/4] flex items-center justify-center">
-                  <div className="text-center text-slate-500">
-                    <ImageIcon size={48} className="mx-auto mb-4 opacity-50" />
-                    <p className="text-sm">No image selected</p>
+              </div>
+            ) : (
+              <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                {previewUrls.map((url, index) => (
+                  <div key={index} className="relative rounded-lg bg-white/5 border border-white/10 overflow-hidden">
+                    <div className="aspect-[3/4]">
+                      <img
+                        src={url}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <button
+                      onClick={() => removeFile(index)}
+                      className="absolute top-2 right-2 w-8 h-8 bg-black/70 backdrop-blur rounded-full flex items-center justify-center hover:bg-red-500/70 transition-colors"
+                      disabled={loading}
+                    >
+                      <X size={16} />
+                    </button>
+                    <div className="p-3 bg-black/40 backdrop-blur">
+                      <p className="text-xs text-slate-400 truncate">
+                        Image {index + 1}: {files[index]?.name}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              )}
-              
-              {previewUrl && (
-                <div className="p-4 space-y-2">
-                  <h3 className="font-semibold text-lg">
-                    {name || "Product Name"}
-                  </h3>
-                  {category && (
-                    <p className="text-xs text-slate-400 uppercase tracking-wider">
-                      {category}
-                    </p>
-                  )}
-                  {price && (
-                    <p className="text-xl font-bold text-purple-400">
-                      ₦{parseFloat(price).toLocaleString()}
-                    </p>
-                  )}
-                  {description && (
-                    <p className="text-sm text-slate-400 line-clamp-3">
-                      {description}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
