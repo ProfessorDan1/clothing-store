@@ -78,15 +78,37 @@ export default function AdminDashboard() {
   }, [searchQuery, categoryFilter, products]);
 
   // Handle authentication
-  const handleAuth = () => {
-    if (adminSecret === process.env.ADMIN_SECRET 
-        || adminSecret === "your-secret-key") {
-      setIsAuthenticated(true);
-      setAuthError("");
-    } else {
-      setAuthError("Invalid admin secret");
+  const handleAuth = async () => {
+    try {
+      // Verify the secret with the server
+      const res = await fetch("/api/admin/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ secret: adminSecret }),
+      });
+
+      if (res.ok) {
+        setIsAuthenticated(true);
+        setAuthError("");
+        // Store in sessionStorage for this session
+        sessionStorage.setItem("adminAuth", "true");
+      } else {
+        setAuthError("Invalid admin secret");
+      }
+    } catch (error) {
+      setAuthError("Error verifying secret");
     }
   };
+
+  // Check if already authenticated on mount
+  useEffect(() => {
+    const isAuth = sessionStorage.getItem("adminAuth");
+    if (isAuth === "true") {
+      setIsAuthenticated(true);
+    }
+  }, []);
 
   // Delete product
   const handleDelete = async (id: string) => {

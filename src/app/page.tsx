@@ -40,13 +40,13 @@ export default function Home() {
     },
     {
       id: 2,
-      image: "/hero-model.png", // Replace with real path
+      image: "/IMG_5340-1.JPG", // Replace with real path
       title: "NEW SEASON",
       subtitle: "Collection 01: Awakening",
     },
     {
       id: 3,
-      image: "/sample1.jpg", // Replace with real path
+      image: "/IMG_4750.JPG", // Replace with real path
       title: "LIMITED RUN",
       subtitle: "Once they're gone, they're gone.",
     },
@@ -54,9 +54,9 @@ export default function Home() {
 
   // 2. DATA: Collections
   const collections = [
-    { id: 1, name: "Men Collection", image: "/sample1.jpg", link: "/collections/men" },
-    { id: 2, name: "Women Collection", image: "/sample2.jpg", link: "/collections/women" },
-    { id: 3, name: "Accessories", image: "/sample3.jpg", link: "/collections/accessories" },
+    { id: 1, name: "Men Collection", image: "/men.jpg", link: "/collections/men" },
+    { id: 2, name: "Women Collection", image: "/women.jpg", link: "/collections/women" },
+    { id: 3, name: "Accessories", image: "/accessories.jpg", link: "/collections/accessories" },
   ];
 
   // 3. LOGIC: Auto-slide

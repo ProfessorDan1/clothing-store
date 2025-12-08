@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "@/app/globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { CartProvider } from "@/lib/CartContext";
 
 export const metadata: Metadata = {
   title: "JFS World",
@@ -12,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="scroll-smooth">
       <body className="antialiased text-slate-100 bg-gradient-to-b from-[#040407] via-[#0b0a10] to-[#07060a] overflow-x-hidden">
+        <CartProvider>
         <div className="relative min-h-screen">
           {/* Background decorative gradients */}
           <div className="absolute inset-0 -z-20 pointer-events-none overflow-hidden">
@@ -23,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="pt-20">{children}</main>
           <Footer />
         </div>
+        </CartProvider>
       </body>
     </html>
   );

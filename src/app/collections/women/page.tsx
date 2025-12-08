@@ -8,32 +8,32 @@ export default function WomenCollectionPage() {
   const womenCategories = [
     {
       name: "T-Shirts",
-      image: "/api/placeholder/800/600",
-      description: "Effortlessly cool everyday essentials",
+      image: "/sample3.JPG",
+      description: "Essential tees for everyday style",
       link: "/shop/T-Shirts",
     },
     {
       name: "Hoodies",
-      image: "/api/placeholder/800/600",
-      description: "Oversized comfort, elevated style",
+      image: "/hero-model.png",
+      description: "Cozy comfort meets street style",
       link: "/shop/Hoodies",
     },
     {
       name: "Jackets",
-      image: "/api/placeholder/800/600",
-      description: "Bold layers for every season",
+      image: "/jacket.JPG",
+      description: "Outerwear that makes a statement",
       link: "/shop/Jackets",
     },
     {
       name: "Pants",
-      image: "/api/placeholder/800/600",
-      description: "From wide-leg to fitted silhouettes",
+      image: "/pant.JPG",
+      description: "From joggers to cargos",
       link: "/shop/Pants",
     },
     {
       name: "Shorts",
-      image: "/api/placeholder/800/600",
-      description: "Casual chic for warmer days",
+      image: "/shorts.JPG",
+      description: "Summer ready essentials",
       link: "/shop/Shorts",
     },
     {

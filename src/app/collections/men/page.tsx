@@ -8,31 +8,31 @@ export default function MenCollectionPage() {
   const menCategories = [
     {
       name: "T-Shirts",
-      image: "/api/placeholder/800/600",
+      image: "/sample3.JPG",
       description: "Essential tees for everyday style",
       link: "/shop/T-Shirts",
     },
     {
       name: "Hoodies",
-      image: "/api/placeholder/800/600",
+      image: "/hero-model.png",
       description: "Cozy comfort meets street style",
       link: "/shop/Hoodies",
     },
     {
       name: "Jackets",
-      image: "/api/placeholder/800/600",
+      image: "/jacket.JPG",
       description: "Outerwear that makes a statement",
       link: "/shop/Jackets",
     },
     {
       name: "Pants",
-      image: "/api/placeholder/800/600",
+      image: "/pant.JPG",
       description: "From joggers to cargos",
       link: "/shop/Pants",
     },
     {
       name: "Shorts",
-      image: "/api/placeholder/800/600",
+      image: "/shorts.JPG",
       description: "Summer ready essentials",
       link: "/shop/Shorts",
     },
